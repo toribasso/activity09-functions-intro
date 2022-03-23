@@ -14,6 +14,10 @@ In this activity, we will create a function for calculating the range of a numer
 
 To begin, we need `{tidyverse}` and `{gapminder}` (for a dataset to test our functions with) packages loaded.
 
+```{r packages, message=False}
+library(tidyverse)
+library(gapminder)
+```
 
 
 
@@ -27,7 +31,26 @@ Remember that in statistics *range = max - min*.
 Describe how you could you use the output from some combination of the above functions to calculate the range?
 Note that I can think of two different methods: 1) using `min` and `max`, and 2) using `range` with the square bracket (`[]`) method.
 
+*Response: As you can see in the code below, I was able to get the minimum, maximum, and 
+range functions from the continuous variables. I was able to get the range from 
+subtracting the min and max functions.
 
+```{r maxminrange}
+view(gapminder)
+yearmax <- max(gapminder$year)
+yearmin <- min(gapminder$year)
+yearrange <- (yearmax-yearmin)
+lifemax <- max(gapminder$lifeExp)
+lifemin <- min(gapminder$lifeExp)
+liferange <- (lifemax-lifemin)
+popmax <- max(gapminder$pop)
+popmin <- min(gapminder$pop)
+poprange <- (popmax-popmin)
+gdpmax <- max(gapminder$gdpPercap)
+gdpmin <- min(gapminder$gdpPercap)
+gdprange <- (gdpmax-gdpmin)
+
+```
 
 
 I will walk through creating a function using the second method.
@@ -93,7 +116,16 @@ Test this function to verify that it works.
 Below check this function using the `lifeExp` column of the `gapminder` dataset.
 Also, verify that it gets the correct result for `1:10` (a sequence of numbers starting at 1 and ending at 10, increasing by 1), `5:100`, `gapminder$pop` (the population of each country in the `gapminder` data set), and `gapminder$gdpPercap`.
 
-
+```{r Checkingfunction}
+range(gapminder$lifeExp)
+diff_range(1:10)
+diff_range(5:100)
+diff_range(gapminder$pop)
+diff_range(gapminder$gdpPercap)
+```
+*Response* I have already performed the range calculations in a previous chunk without
+the function. I was able to find that the function worked like intended and I was able
+to get the correct result.
 
 
 ### Your turn
@@ -110,16 +142,46 @@ Convince yourself that you know how to use it by being able to explain what the 
 
 Also, explore this function with different `probs`.
 
-
+```{r explorequantile}
+quantile(gapminder$lifeExp)
+quantile(gapminder$lifeExp, probs = 0.5)
+quantile(gapminder$lifeExp, probs = c(0.25, 0.75))
+```
+*Response* The default returns the 0-25-50-75-100 quantiles and the probs call returns
+the quantile that you specify.
 
 Once, you feel comfortable with the `quantile` function, create a function named `quantile_range` that calculates the statistical range.
 
+```{r creatingquantilefunction}
+quantile_range <- function(x){
+  # set changing values
+  quantile_results <- quantile(x, probs = c(0, 1))
+  larger_value <- quantile_results[2]
+  smaller_value <- quantile_results[1]
+  
+  # perform calculation that stays the same
+  diff_values <- larger_value - smaller_value
+  return(diff_values)
+}
+```
 
 
 Test your function to verify that it works.
 Below check this function using the `lifeExp` column of the `gapminder` dataset.
 Also, verify that it gets the correct result for `1:10` (a sequence of numbers starting at 1 and ending at 10, increasing by 1), `5:100`, `gapminder$pop` (the population of each country in the `gapminder` data set), and `gapminder$gdpPercap`.
 
+```{r testquantfunct}
+quantile(gapminder$lifeExp)
+quantile_range(gapminder$lifeExp)
+quantile(1:10)
+quantile_range(1:10)
+quantile(5:100)
+quantile_range(5:100)
+quantile(gapminder$pop)
+quantile_range(gapminder$pop)
+quantile(gapminder$gdpPercap)
+quantile_range(gapminder$gdpPercap)
+```
 
 
 ![](README-img/noun_pause.png) **Planned Pause Point**: This is the end of Part 1 of this activity. You can use the rest of the class period working on your project. The rest of this activity will be completed in our next class session/at home.
@@ -135,6 +197,12 @@ When we write functions, we should also make sure that it fails when we expect i
 - `"Go Lakers!"` - a string
 
 Below, check that our function breaks for each of the above tests.
+
+```{r functionbreak}
+quantile_range(gapminder)
+quantile_range(gapminder$country)
+quantile_range("Go Lakers!")
+```
 
 
 For functions that will be used again, it is a good practice to add argument validity checks.
@@ -152,6 +220,21 @@ For functions that will be used again, it is a good practice to add argument val
 
 Explore the two argument validity checks by adding them to the beginning of your function above (one, then remove it and add the other) to check if the input `x` is a numeric vector (`is.numeric`).
 
+```{r updatequantile}
+quantile_range <- function(x){
+  # set changing values
+  quantile_results <- quantile(x, probs = c(0, 1))
+  larger_value <- quantile_results[2]
+  smaller_value <- quantile_results[1]
+  
+  # perform calculation that stays the same
+  diff_values <- larger_value - smaller_value
+  return(diff_values)
+  if(is.character(x)){
+    stop("Cannot Process Character Values for Range")}
+}
+quantile_range(1:10)
+```
 
 
 
@@ -160,9 +243,18 @@ Explore the two argument validity checks by adding them to the beginning of your
 Calculating the range of a set of data is convenient, but it would be nice if we could determine the range between certain quantiles too.
 For example, the interquartile range (*IQR = Q3 − Q1*).
  
-
-
-
+```{r NewfunctIQrange}
+interquantile_range <- function(x){
+  # set changing values
+  quantile_results <- quantile(x, probs = c(0.25, 0.75))
+  larger_value <- quantile_results[2]
+  smaller_value <- quantile_results[1]
+  
+  # perform calculation that stays the same
+  diff_values <- larger_value - smaller_value
+  return(diff_values)
+}
+```
 
 
 Update your function so that it has the arguments `x` and `probs` and calculates the differences between two specified quantiles supplied to the `probs` argument.
@@ -173,8 +265,13 @@ Test your function with:
 
 Also test that your function breaks when it should.
 
-
-
+```{r Testfunction}
+interquantile_range(gapminder$lifeExp)
+quantile_range(gapminder$lifeExp, probs = c(0.25, 0.75))
+quantile_range(gapminder$lifeExp, probs = c(0, 1))
+interquartile_range("String")
+interquartile_range(gapminder$country)
+```
 
 
 Since you we using the `quantile` function in the `quantile_range` function, we should be consistent with the arguments that we specify.
@@ -188,8 +285,9 @@ If you write functions based on already existing functions, use a similar naming
 What happens if you call your `quantile_range` function, but do not supply specific probabilities?
 That is, check `quantile_range(gapminder$lifeExp)`.
 
-
-
+```{r checkprobs}
+quantile_range(gapminder$lifeExp)
+```
 
 
 It is nice to provide some reasonable default values for certain arguments.
@@ -201,7 +299,23 @@ Update your `quantile_range` function below (copy, paste, edit) to have the defa
 Check that your function works by specifying and not specifying the `probs` argument.
 Then, upgrade your function to contain a validity check for the new `probs` argument.
 
+```{r updateQuantileRange}
+interquantile_range <- function(x, probs = c(0.25, 0.75)){
+  # set changing values
+  quantile_results <- quantile(x)
+  larger_value <- quantile_results[2]
+  smaller_value <- quantile_results[1]
+  
+  # perform calculation that stays the same
+  diff_values <- larger_value - smaller_value
+  return(diff_values)
+}
+```
 
+```{r Testingupdate}
+interquantile_range(1:10)
+interquantile_range(1:10, probs = 0.25)
+```
 
 
 ### Handling `NA`s
@@ -219,14 +333,25 @@ quantile(z)
 quantile(z, na.rm = TRUE)
 ```
 
-**Response:**
+**Response:** So, na.rm=TRUE means that it allows missing values. The default value is
+na.rm=FALSE.
 
 Setting `na.rm` within your function without providing users a way to override this behavior would be ill-advised.
 Update your `quant_diff` function to be more robust (i.e., handle `NA`s) while also providing users to control the behavior around `NA`s.
 You are welcome to enforce your preferred choice when defining the default behavior, but be sure to provide a way for users to control this.
 
-
-
+```{r updatetohandleNA}
+interquantile_range <- function(x, probs = c(0.25, 0.75), na.rm=FALSE, ...){
+  # set changing values
+  quantile_results <- quantile(x)
+  larger_value <- quantile_results[2]
+  smaller_value <- quantile_results[1]
+  
+  # perform calculation that stays the same
+  diff_values <- larger_value - smaller_value
+  return(diff_values)
+}
+```
 
 
 ![](README-img/noun_pause.png) **Planned Pause Point**: If you have any questions, contact your instructor. Otherwise feel free to continue on.
@@ -245,8 +370,8 @@ You will also need to add `...` to where you want to allow for additional argume
 Test that this worked by running the following lines of code:
 
 ```{r}
-quantile_range(gapminder$lifeExp, probs = c(0.25, 0.75), type = 1)
-quantile_range(gapminder$lifeExp, probs = c(0.25, 0.75), type = 4)
+interquantile_range(gapminder$lifeExp, probs = c(0.25, 0.75), type = 1)
+interquantile_range(gapminder$lifeExp, probs = c(0.25, 0.75), type = 4)
 ```
 
 The `...` argument is useful for when you want to provide the ability to pass arbitrary arguments to another function, but don’t want to constantly be expanding the formal arguments.
@@ -265,8 +390,11 @@ Now we will see if it works within the `{tidyverse}`.
 
 In the code chunk below, calculate the IQR for the variable `gdpPercap` in the gapminder dataset for each continent in the year 2002.
 
-```{r}
-
+```{r IQrangecalc}
+gapminder %>%
+  group_by(continent) %>%
+  filter(year == 2002) %>%
+  summarize(IQR = interquantile_range(gdpPercap))
 ```
 
 
